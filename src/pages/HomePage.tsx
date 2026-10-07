@@ -1,3 +1,5 @@
+import { services } from "../data/services";
+
 function HomePage() {
   return (
     <div className="app">
@@ -44,29 +46,15 @@ function HomePage() {
             <h2>Те, що підкреслює твою красу</h2>
 
             <div className="services-grid">
-              <article className="service-card">
-                <span>01</span>
-                <h3>Стрижки</h3>
-                <p>Жіночі, чоловічі та дитячі стрижки.</p>
-              </article>
+              {services.slice(0, 4).map((service, index) => (
+                <article className="service-card" key={service.id}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
 
-              <article className="service-card">
-                <span>02</span>
-                <h3>Фарбування</h3>
-                <p>Однотонне фарбування, тонування та складні техніки.</p>
-              </article>
+                  <h3>{service.name}</h3>
 
-              <article className="service-card">
-                <span>03</span>
-                <h3>Укладки</h3>
-                <p>Щоденні та святкові укладки для особливих моментів.</p>
-              </article>
-
-              <article className="service-card">
-                <span>04</span>
-                <h3>Зачіски</h3>
-                <p>Вечірні, святкові та особливі зачіски.</p>
-              </article>
+                  <p>{service.description}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
