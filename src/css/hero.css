@@ -1,0 +1,43 @@
+.hero {
+  min-height: 680px;
+  display: flex;
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(28, 26, 27, 0.72), rgba(28, 26, 27, 0.2)),
+    url("https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1800&q=85")
+      center / cover;
+  color: white;
+}
+
+.hero .container {
+  padding: 100px 0;
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 700px;
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(54px, 8vw, 96px);
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.hero-text {
+  max-width: 520px;
+  margin: 32px 0;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.hero .button {
+  background: white;
+  color: #1c1a1b;
+}

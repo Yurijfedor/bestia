@@ -1,0 +1,11 @@
+.booking-intro {
+  max-width: 760px;
+}
+
+.booking-intro p:not(.eyebrow) {
+  max-width: 600px;
+  margin-bottom: 30px;
+  color: #686163;
+  font-size: 18px;
+  line-height: 1.7;
+}

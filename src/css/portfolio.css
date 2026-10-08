@@ -1,0 +1,11 @@
+.section-muted {
+  background: #eee9e5;
+}
+
+.portfolio-placeholder {
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed #aaa09b;
+  color: #77706c;
+}

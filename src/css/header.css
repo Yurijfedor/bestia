@@ -1,0 +1,36 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(248, 245, 242, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e7e0dc;
+}
+
+.site-header .container {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.logo {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.main-nav {
+  display: flex;
+  gap: 28px;
+}
+
+.main-nav a {
+  font-size: 14px;
+}
+
+.main-nav a:hover {
+  opacity: 0.6;
+}

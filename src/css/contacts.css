@@ -1,0 +1,41 @@
+.section-dark {
+  background: #1c1a1b;
+  color: white;
+}
+
+.contact-info {
+  display: grid;
+  gap: 12px;
+  font-size: 17px;
+}
+
+.contact-info p {
+  margin: 0;
+}
+
+.working-hours {
+  max-width: 420px;
+  margin-top: 24px;
+}
+
+.working-hours h3 {
+  margin: 0 0 16px;
+  font-size: 17px;
+}
+
+.working-hours-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 15px;
+}
+
+.working-hours-row:last-child {
+  border-bottom: 0;
+}
+
+.working-hours-row span:last-child {
+  white-space: nowrap;
+}

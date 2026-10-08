@@ -1,0 +1,10 @@
+.site-footer {
+  padding: 28px 0;
+  background: #141314;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.site-footer p {
+  margin: 0;
+}

@@ -1,0 +1,35 @@
+@media (max-width: 800px) {
+  .main-nav {
+    display: none;
+  }
+
+  .hero {
+    min-height: 600px;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .container {
+    width: min(100% - 28px, 1120px);
+  }
+
+  .section {
+    padding: 80px 0;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card {
+    min-height: 220px;
+  }
+
+  .service-card h3 {
+    margin-top: 45px;
+  }
+}

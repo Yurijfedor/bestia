@@ -1,4 +1,15 @@
 import { services } from "../data/services";
+import { workingHours } from "../data/workingHours";
+
+const dayNames = {
+  monday: "Понеділок",
+  tuesday: "Вівторок",
+  wednesday: "Середа",
+  thursday: "Четвер",
+  friday: "П’ятниця",
+  saturday: "Субота",
+  sunday: "Неділя",
+};
 
 function HomePage() {
   return (
@@ -98,6 +109,22 @@ function HomePage() {
               <p>📍 Шаргород, вул. Героїв Майдану, 250</p>
               <p>💬 Telegram: +380 98 273 35 27</p>
               <p>💬 Viber: +380 98 273 35 27</p>
+
+              <div className="working-hours">
+                <h3>Графік роботи</h3>
+
+                {workingHours.map((hours) => (
+                  <div className="working-hours-row" key={hours.day}>
+                    <span>{dayNames[hours.day]}</span>
+
+                    <span>
+                      {hours.isWorking
+                        ? `${hours.start}–${hours.end}`
+                        : "Вихідний"}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
