@@ -1,5 +1,6 @@
 import { services } from "../data/services";
 import { workingHours } from "../data/workingHours";
+import ServiceCard from "../components/services/ServiceCard";
 
 const dayNames = {
   monday: "Понеділок",
@@ -57,14 +58,8 @@ function HomePage() {
             <h2>Те, що підкреслює твою красу</h2>
 
             <div className="services-grid">
-              {services.slice(0, 4).map((service, index) => (
-                <article className="service-card" key={service.id}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-
-                  <h3>{service.name}</h3>
-
-                  <p>{service.description}</p>
-                </article>
+              {services.slice(0, 4).map((service) => (
+                <ServiceCard key={service.id} service={service} />
               ))}
             </div>
           </div>

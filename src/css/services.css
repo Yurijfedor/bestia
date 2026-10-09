@@ -29,3 +29,34 @@
   color: #686163;
   line-height: 1.6;
 }
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card h3 {
+  margin-top: 70px;
+}
+
+.service-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.service-card-details span:first-child {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1c1a1b;
+}
+
+.service-card-details span:last-child {
+  font-size: 13px;
+  color: #77706c;
+  white-space: nowrap;
+}
