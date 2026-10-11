@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { services } from "../../data/services";
 import { serviceCategories } from "../../data/serviceCategories";
 import ServiceCard from "./ServiceCard";
@@ -11,6 +10,7 @@ function ServicesSection() {
     selectedCategory === "all"
       ? services
       : services.filter((service) => service.category === selectedCategory);
+
   return (
     <section className="section" id="all-services">
       <div className="container">
@@ -39,27 +39,11 @@ function ServicesSection() {
           ))}
         </div>
 
-        {serviceCategories.map((category) => {
-          const categoryServices = services.filter(
-            (service) => service.category === category.id,
-          );
-
-          if (categoryServices.length === 0) {
-            return null;
-          }
-
-          return (
-            <div className="service-category" key={category.id}>
-              <h3>{category.label}</h3>
-
-              <div className="services-grid">
-                {filteredServices.map((service) => (
-                  <ServiceCard key={service.id} service={service} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        <div className="services-grid">
+          {filteredServices.map((service) => (
+            <ServiceCard key={service.id} service={service} />
+          ))}
+        </div>
       </div>
     </section>
   );

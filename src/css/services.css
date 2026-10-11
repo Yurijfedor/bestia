@@ -1,15 +1,19 @@
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
-  background: #dcd4cf;
-  border: 1px solid #dcd4cf;
+  background: transparent;
+  border: 0;
 }
 
 .service-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   min-height: 280px;
   padding: 32px;
   background: #f8f5f2;
+  border: 1px solid #dcd4cf;
 }
 
 .service-card span {
@@ -59,4 +63,37 @@
   font-size: 13px;
   color: #77706c;
   white-space: nowrap;
+}
+
+.service-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -20px 0 36px;
+}
+
+.service-filters button {
+  padding: 11px 18px;
+  border: 1px solid #dcd4cf;
+  background: transparent;
+  color: #1c1a1b;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.service-filters button:hover {
+  border-color: #1c1a1b;
+}
+
+.service-filters button.active {
+  border-color: #1c1a1b;
+  background: #1c1a1b;
+  color: #fff;
+}
+
+.services-more {
+  margin-top: 30px;
 }

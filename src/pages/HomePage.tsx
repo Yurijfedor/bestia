@@ -1,6 +1,7 @@
 import { services } from "../data/services";
 import { workingHours } from "../data/workingHours";
 import ServiceCard from "../components/services/ServiceCard";
+import ServicesSection from "../components/services/ServicesSection";
 
 const dayNames = {
   monday: "Понеділок",
@@ -62,8 +63,14 @@ function HomePage() {
                 <ServiceCard key={service.id} service={service} />
               ))}
             </div>
+
+            <a href="#all-services" className="button services-more">
+              Усі послуги
+            </a>
           </div>
         </section>
+
+        <ServicesSection />
 
         <section id="portfolio" className="section section-muted">
           <div className="container">
