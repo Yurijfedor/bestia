@@ -27,6 +27,7 @@
 
   .service-card {
     min-height: 220px;
+    padding: 24px;
   }
 
   .service-card h3 {
