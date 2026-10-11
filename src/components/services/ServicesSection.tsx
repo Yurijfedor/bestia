@@ -3,8 +3,11 @@ import { services } from "../../data/services";
 import { serviceCategories } from "../../data/serviceCategories";
 import ServiceCard from "./ServiceCard";
 
+import type { Service } from "../../types/service";
+
 function ServicesSection() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const filteredServices =
     selectedCategory === "all"
@@ -41,9 +44,27 @@ function ServicesSection() {
 
         <div className="services-grid">
           {filteredServices.map((service) => (
-            <ServiceCard key={service.id} service={service} />
+            <ServiceCard
+              key={service.id}
+              service={service}
+              onBook={setSelectedService}
+            />
           ))}
         </div>
+        {selectedService && (
+          <div className="booking-selection">
+            <h3>Ви обрали: {selectedService.name}</h3>
+
+            <p>
+              Вартість: {selectedService.price} грн · Тривалість:{" "}
+              {selectedService.durationMinutes} хв
+            </p>
+
+            <button type="button" onClick={() => setSelectedService(null)}>
+              Скасувати вибір
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
