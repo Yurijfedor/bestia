@@ -1,7 +1,10 @@
+import { useState } from "react";
+import type { Service } from "../types/service";
 import { services } from "../data/services";
 import { workingHours } from "../data/workingHours";
 import ServiceCard from "../components/services/ServiceCard";
 import ServicesSection from "../components/services/ServicesSection";
+import BookingForm from "../components/booking/BookingForm";
 
 const dayNames = {
   monday: "Понеділок",
@@ -14,6 +17,8 @@ const dayNames = {
 };
 
 function HomePage() {
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+
   return (
     <div className="app">
       <header className="site-header">
@@ -70,7 +75,10 @@ function HomePage() {
           </div>
         </section>
 
-        <ServicesSection />
+        <ServicesSection
+          selectedService={selectedService}
+          onSelectService={setSelectedService}
+        />
 
         <section id="portfolio" className="section section-muted">
           <div className="container">
@@ -85,20 +93,7 @@ function HomePage() {
         </section>
 
         <section id="booking" className="section">
-          <div className="container booking-intro">
-            <p className="eyebrow">Онлайн-запис</p>
-
-            <h2>Обери зручний час для себе</h2>
-
-            <p>
-              У найближчих етапах тут з&apos;явиться інтерактивний календар із
-              доступними датами та часом.
-            </p>
-
-            <button className="button" type="button">
-              Скоро буде доступно
-            </button>
-          </div>
+          <BookingForm selectedService={selectedService} />
         </section>
 
         <section id="contacts" className="section section-dark">

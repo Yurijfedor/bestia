@@ -5,9 +5,16 @@ import ServiceCard from "./ServiceCard";
 
 import type { Service } from "../../types/service";
 
-function ServicesSection() {
+interface ServicesSectionProps {
+  selectedService: Service | null;
+  onSelectService: (service: Service | null) => void;
+}
+
+function ServicesSection({
+  selectedService,
+  onSelectService,
+}: ServicesSectionProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const filteredServices =
     selectedCategory === "all"
@@ -47,7 +54,7 @@ function ServicesSection() {
             <ServiceCard
               key={service.id}
               service={service}
-              onBook={setSelectedService}
+              onBook={onSelectService}
             />
           ))}
         </div>
@@ -60,7 +67,7 @@ function ServicesSection() {
               {selectedService.durationMinutes} хв
             </p>
 
-            <button type="button" onClick={() => setSelectedService(null)}>
+            <button type="button" onClick={() => onSelectService(null)}>
               Скасувати вибір
             </button>
           </div>
