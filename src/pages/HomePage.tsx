@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Service } from "../types/service";
-import { services } from "../data/services";
+import { fetchServices } from "../lib/servicesApi";
 import { workingHours } from "../data/workingHours";
 import ServiceCard from "../components/services/ServiceCard";
 import ServicesSection from "../components/services/ServicesSection";
@@ -18,6 +18,42 @@ const dayNames = {
 
 function HomePage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadServices() {
+      try {
+        const loadedServices = await fetchServices();
+
+        if (isMounted) {
+          setServices(loadedServices);
+          setServicesError(null);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setServicesError(
+            error instanceof Error
+              ? error.message
+              : "Не вдалося завантажити каталог послуг.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingServices(false);
+        }
+      }
+    }
+
+    void loadServices();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="app">
@@ -63,11 +99,19 @@ function HomePage() {
 
             <h2>Те, що підкреслює твою красу</h2>
 
-            <div className="services-grid">
-              {services.slice(0, 4).map((service) => (
-                <ServiceCard key={service.id} service={service} />
-              ))}
-            </div>
+            {isLoadingServices ? (
+              <p>Завантажуємо послуги...</p>
+            ) : servicesError ? (
+              <p role="alert">{servicesError}</p>
+            ) : services.length === 0 ? (
+              <p>Наразі послуги недоступні.</p>
+            ) : (
+              <div className="services-grid">
+                {services.slice(0, 4).map((service) => (
+                  <ServiceCard key={service.id} service={service} />
+                ))}
+              </div>
+            )}
 
             <a href="#all-services" className="button services-more">
               Усі послуги
@@ -76,6 +120,9 @@ function HomePage() {
         </section>
 
         <ServicesSection
+          services={services}
+          isLoading={isLoadingServices}
+          error={servicesError}
           selectedService={selectedService}
           onSelectService={setSelectedService}
         />

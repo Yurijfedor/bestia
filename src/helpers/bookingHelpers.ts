@@ -50,7 +50,7 @@ export function getAvailableTimes(date: string, durationMinutes: number) {
   const end = endHour * 60 + endMinute;
   const times: string[] = [];
 
-  for (let time = start; time + durationMinutes <= end; time += 60) {
+  for (let time = start; time + durationMinutes <= end; time += 30) {
     const hour = String(Math.floor(time / 60)).padStart(2, "0");
     const minute = String(time % 60).padStart(2, "0");
 
@@ -58,4 +58,36 @@ export function getAvailableTimes(date: string, durationMinutes: number) {
   }
 
   return times;
+}
+
+export function getAvailableTimesWithBookings(
+  date: string,
+  durationMinutes: number,
+  bookedSlots: { startTime: string; endTime: string }[],
+): string[] {
+  const regularTimes = getAvailableTimes(date, durationMinutes);
+
+  const exactTimes = bookedSlots.map((slot) => slot.endTime.slice(0, 5));
+
+  const candidates = [...new Set([...regularTimes, ...exactTimes])].sort();
+
+  return candidates.filter((time) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    const start = hours * 60 + minutes;
+    const end = start + durationMinutes;
+
+    if (end > 18 * 60) return false;
+
+    const overlaps = bookedSlots.some((slot) => {
+      const [startHour, startMinute] = slot.startTime.split(":").map(Number);
+      const [endHour, endMinute] = slot.endTime.split(":").map(Number);
+
+      const bookedStart = startHour * 60 + startMinute;
+      const bookedEnd = endHour * 60 + endMinute;
+
+      return start < bookedEnd && end > bookedStart;
+    });
+
+    return !overlaps;
+  });
 }

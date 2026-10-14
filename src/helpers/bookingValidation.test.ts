@@ -5,6 +5,9 @@ import { hasBookingConflict } from "./bookingValidation";
 const existingBooking: Booking = {
   id: "booking-1",
   serviceId: "mens-haircut",
+  serviceName: "Чоловіча стрижка",
+  servicePrice: 500,
+  serviceDurationMinutes: 30,
   clientName: "Олена",
   clientPhone: "+380991234567",
   date: "2026-10-14",

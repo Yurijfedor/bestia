@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { services } from "../../data/services";
 import { serviceCategories } from "../../data/serviceCategories";
 import ServiceCard from "./ServiceCard";
-
 import type { Service } from "../../types/service";
 
 interface ServicesSectionProps {
+  services: Service[];
+  isLoading: boolean;
+  error: string | null;
   selectedService: Service | null;
   onSelectService: (service: Service | null) => void;
 }
 
 function ServicesSection({
+  services,
+  isLoading,
+  error,
   selectedService,
   onSelectService,
 }: ServicesSectionProps) {
@@ -28,36 +32,47 @@ function ServicesSection({
 
         <h2>Обери свій образ</h2>
 
-        <div className="service-filters">
-          <button
-            type="button"
-            className={selectedCategory === "all" ? "active" : ""}
-            onClick={() => setSelectedCategory("all")}
-          >
-            Усі послуги
-          </button>
+        {isLoading ? (
+          <p>Завантажуємо послуги...</p>
+        ) : error ? (
+          <p role="alert">{error}</p>
+        ) : services.length === 0 ? (
+          <p>Наразі послуги недоступні.</p>
+        ) : (
+          <>
+            <div className="service-filters">
+              <button
+                type="button"
+                className={selectedCategory === "all" ? "active" : ""}
+                onClick={() => setSelectedCategory("all")}
+              >
+                Усі послуги
+              </button>
 
-          {serviceCategories.map((category) => (
-            <button
-              type="button"
-              key={category.id}
-              className={selectedCategory === category.id ? "active" : ""}
-              onClick={() => setSelectedCategory(category.id)}
-            >
-              {category.label}
-            </button>
-          ))}
-        </div>
+              {serviceCategories.map((category) => (
+                <button
+                  type="button"
+                  key={category.id}
+                  className={selectedCategory === category.id ? "active" : ""}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
 
-        <div className="services-grid">
-          {filteredServices.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              onBook={onSelectService}
-            />
-          ))}
-        </div>
+            <div className="services-grid">
+              {filteredServices.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onBook={onSelectService}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         {selectedService && (
           <div className="booking-selection">
             <h3>Ви обрали: {selectedService.name}</h3>
