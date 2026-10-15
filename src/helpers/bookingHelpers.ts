@@ -65,29 +65,59 @@ export function getAvailableTimesWithBookings(
   durationMinutes: number,
   bookedSlots: { startTime: string; endTime: string }[],
 ): string[] {
-  const regularTimes = getAvailableTimes(date, durationMinutes);
+  if (!date || isSunday(date) || durationMinutes <= 0) {
+    return [];
+  }
 
-  const exactTimes = bookedSlots.map((slot) => slot.endTime.slice(0, 5));
+  const daySchedule = workingHours.find(
+    (hours) => hours.day === getDayKey(date),
+  );
 
-  const candidates = [...new Set([...regularTimes, ...exactTimes])].sort();
+  if (!daySchedule || !daySchedule.isWorking) {
+    return [];
+  }
 
-  return candidates.filter((time) => {
+  const toMinutes = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
-    const start = hours * 60 + minutes;
-    const end = start + durationMinutes;
+    return hours * 60 + minutes;
+  };
 
-    if (end > 18 * 60) return false;
+  const toTime = (minutes: number) =>
+    `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(
+      minutes % 60,
+    ).padStart(2, "0")}`;
 
-    const overlaps = bookedSlots.some((slot) => {
-      const [startHour, startMinute] = slot.startTime.split(":").map(Number);
-      const [endHour, endMinute] = slot.endTime.split(":").map(Number);
+  const workStart = toMinutes(daySchedule.start);
+  const workEnd = toMinutes(daySchedule.end);
 
-      const bookedStart = startHour * 60 + startMinute;
-      const bookedEnd = endHour * 60 + endMinute;
+  const sortedBookings = bookedSlots
+    .map((slot) => ({
+      start: toMinutes(slot.startTime),
+      end: toMinutes(slot.endTime),
+    }))
+    .sort((a, b) => a.start - b.start);
 
-      return start < bookedEnd && end > bookedStart;
-    });
+  const available = new Set<number>();
+  let gapStart = workStart;
 
-    return !overlaps;
-  });
+  for (const booking of sortedBookings) {
+    // Generate starts in the free gap before this booking.
+    for (
+      let start = gapStart;
+      start + durationMinutes <= booking.start;
+      start += 30
+    ) {
+      available.add(start);
+    }
+
+    // The next gap begins at this booking's end.
+    gapStart = Math.max(gapStart, booking.end);
+  }
+
+  // Generate starts in the final gap before closing.
+  for (let start = gapStart; start + durationMinutes <= workEnd; start += 30) {
+    available.add(start);
+  }
+
+  return [...available].map(toTime).sort();
 }
