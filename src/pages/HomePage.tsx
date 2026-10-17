@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
+import { supabase } from "../lib/supabase";
+
 import type { Service } from "../types/service";
 import { fetchServices } from "../lib/servicesApi";
 import { workingHours } from "../data/workingHours";
@@ -21,6 +26,16 @@ function HomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [servicesError, setServicesError] = useState<string | null>(null);
+
+  const { user } = useAuth();
+
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Не вдалося вийти з облікового запису:", error);
+    }
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -68,6 +83,18 @@ function HomePage() {
             <a href="#portfolio">Роботи</a>
             <a href="#booking">Запис</a>
             <a href="#contacts">Контакти</a>
+
+            {user ? (
+              <>
+                <Link to="/account">Мій кабінет</Link>
+                <span>{user.email}</span>
+                <button type="button" onClick={handleLogout}>
+                  Вийти
+                </button>
+              </>
+            ) : (
+              <Link to="/login">Увійти</Link>
+            )}
           </nav>
         </div>
       </header>
