@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
+
+import { useAuth } from "../../contexts/useAuth";
 
 import "./BookingForm.css";
 
@@ -19,6 +21,11 @@ interface BookingFormProps {
 }
 
 function BookingForm({ selectedService }: BookingFormProps) {
+  const { user } = useAuth();
+
+  const nameEdited = useRef(false);
+  const phoneEdited = useRef(false);
+
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [visitDate, setVisitDate] = useState("");
@@ -46,9 +53,42 @@ function BookingForm({ selectedService }: BookingFormProps) {
   });
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(true);
 
-  // const availableTimes = selectedService
-  //   ? getAvailableTimes(visitDate, selectedService.durationMinutes)
-  //   : [];
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadClientProfile() {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!isActive) return;
+
+      if (error) {
+        console.error("Не вдалося завантажити профіль для бронювання:", error);
+        return;
+      }
+
+      if (data) {
+        if (!nameEdited.current) {
+          setClientName(data.full_name ?? "");
+        }
+
+        if (!phoneEdited.current) {
+          setClientPhone(data.phone ?? "");
+        }
+      }
+    }
+
+    void loadClientProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     let isMounted = true;
@@ -263,7 +303,10 @@ function BookingForm({ selectedService }: BookingFormProps) {
               <input
                 type="text"
                 value={clientName}
-                onChange={(event) => setClientName(event.target.value)}
+                onChange={(event) => {
+                  nameEdited.current = true;
+                  setClientName(event.target.value);
+                }}
                 required
                 autoComplete="name"
                 placeholder="Наприклад, Олена"
@@ -279,6 +322,7 @@ function BookingForm({ selectedService }: BookingFormProps) {
                   const value = event.target.value;
 
                   if (/^[0-9+()\s-]*$/.test(value)) {
+                    phoneEdited.current = true;
                     setClientPhone(value);
                   }
                 }}

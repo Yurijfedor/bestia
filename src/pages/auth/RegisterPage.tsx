@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
 export default function RegisterPage() {
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -13,6 +15,15 @@ export default function RegisterPage() {
     event.preventDefault();
     setMessage("");
     setError("");
+
+    const normalizedName = fullName.trim();
+    const normalizedPhone = phone.trim();
+
+    if (!normalizedName) {
+      setError("Введи ім’я та прізвище.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -21,6 +32,10 @@ export default function RegisterPage() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/login`,
+          data: {
+            full_name: normalizedName,
+            phone: normalizedPhone,
+          },
         },
       });
 
@@ -48,6 +63,29 @@ export default function RegisterPage() {
       <p>Зареєструйся, щоб керувати своїми записами до майстрині.</p>
 
       <form onSubmit={handleRegister}>
+        <label>
+          Ім’я та прізвище
+          <input
+            type="text"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            autoComplete="name"
+            maxLength={100}
+            required
+          />
+        </label>
+
+        <label>
+          Номер телефону
+          <input
+            type="tel"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            autoComplete="tel"
+            maxLength={30}
+          />
+        </label>
+
         <label>
           Електронна пошта
           <input

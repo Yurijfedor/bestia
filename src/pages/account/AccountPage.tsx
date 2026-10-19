@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import { supabase } from "../../lib/supabase";
@@ -12,6 +12,11 @@ interface Booking {
   start_time: string;
   end_time: string;
   status: string;
+}
+
+interface Profile {
+  full_name: string | null;
+  phone: string | null;
 }
 
 const statusLabels: Record<string, string> = {
@@ -40,6 +45,53 @@ export default function AccountPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileMessage, setProfileMessage] = useState("");
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadProfile() {
+      if (!user) {
+        setIsProfileLoading(false);
+        return;
+      }
+
+      setIsProfileLoading(true);
+      setProfileError("");
+      setProfileMessage("");
+
+      const { data, error: fetchError } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!isActive) return;
+
+      if (fetchError) {
+        console.error("Помилка завантаження профілю:", fetchError);
+        setProfileError("Не вдалося завантажити особисті дані.");
+      } else {
+        const profile = data as Profile | null;
+        setFullName(profile?.full_name ?? "");
+        setPhone(profile?.phone ?? "");
+      }
+
+      setIsProfileLoading(false);
+    }
+
+    void loadProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     let isActive = true;
@@ -81,6 +133,46 @@ export default function AccountPage() {
       isActive = false;
     };
   }, [user]);
+
+  async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!user) return;
+
+    const normalizedName = fullName.trim();
+    const normalizedPhone = phone.trim();
+
+    if (!normalizedName) {
+      setProfileError("Будь ласка, введіть ім’я.");
+      setProfileMessage("");
+      return;
+    }
+
+    setIsSavingProfile(true);
+    setProfileError("");
+    setProfileMessage("");
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        full_name: normalizedName,
+        phone: normalizedPhone || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    setIsSavingProfile(false);
+
+    if (updateError) {
+      console.error("Помилка збереження профілю:", updateError);
+      setProfileError("Не вдалося зберегти зміни. Спробуйте ще раз.");
+      return;
+    }
+
+    setFullName(normalizedName);
+    setPhone(normalizedPhone);
+    setProfileMessage("Особисті дані успішно збережено.");
+  }
 
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Kyiv",
@@ -138,9 +230,55 @@ export default function AccountPage() {
 
       <section>
         <h2>Мої дані</h2>
+
         <p>
           <strong>Електронна пошта:</strong> {user?.email}
         </p>
+
+        {isProfileLoading ? (
+          <p>Завантажуємо особисті дані...</p>
+        ) : (
+          <form onSubmit={handleProfileSubmit}>
+            <div>
+              <label htmlFor="profile-full-name">Ім’я та прізвище</label>
+              <input
+                id="profile-full-name"
+                name="fullName"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                required
+                maxLength={100}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="profile-phone">Номер телефону</label>
+              <input
+                id="profile-phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                maxLength={30}
+              />
+            </div>
+
+            {profileError && <p role="alert">{profileError}</p>}
+
+            {profileMessage && <p role="status">{profileMessage}</p>}
+
+            <button type="submit" disabled={isSavingProfile}>
+              {isSavingProfile ? "Зберігаємо..." : "Зберегти зміни"}
+            </button>
+          </form>
+        )}
+
+        {!isProfileLoading && profileError && (
+          <p role="alert">{profileError}</p>
+        )}
       </section>
 
       <section>
