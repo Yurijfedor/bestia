@@ -39,12 +39,78 @@ function formatPrice(price: number | string) {
   return `${Number(price).toLocaleString("uk-UA")} грн`;
 }
 
+function isCancellationAllowed(booking: Booking) {
+  if (!["pending", "confirmed"].includes(booking.status)) {
+    return false;
+  }
+
+  // Перетворюємо час салону Europe/Kyiv на UTC,
+  // враховуючи літній і зимовий час.
+  const [year, month, day] = booking.booking_date.split("-").map(Number);
+  const [hour, minute] = booking.start_time.split(":").map(Number);
+
+  const target = Date.UTC(year, month - 1, day, hour, minute);
+
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Kyiv",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+
+  // Початкове наближення, після чого уточнюємо зсув
+  // за фактичним часом у Europe/Kyiv.
+  const parts = formatter.formatToParts(new Date(target));
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, Number(part.value)]),
+  );
+
+  const displayedAsUtc = Date.UTC(
+    values.year,
+    values.month - 1,
+    values.day,
+    values.hour,
+    values.minute,
+  );
+
+  const offset = displayedAsUtc - target;
+  const appointmentUtc = target - offset;
+
+  return appointmentUtc - Date.now() > 24 * 60 * 60 * 1000;
+}
+
+function cancellationErrorMessage(message: string) {
+  if (message.includes("24 години")) {
+    return "Скасувати запис можна лише більш ніж за 24 години до візиту.";
+  }
+
+  if (message.includes("не належить") || message.includes("не знайдено")) {
+    return "Не вдалося знайти ваш запис. Оновіть сторінку.";
+  }
+
+  if (message.includes("уже не можна скасувати")) {
+    return "Цей запис уже не можна скасувати.";
+  }
+
+  return "Не вдалося скасувати запис. Спробуйте ще раз.";
+}
+
 export default function AccountPage() {
   const { user } = useAuth();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(
+    null,
+  );
+  const [cancellationMessage, setCancellationMessage] = useState("");
+  const [cancellationError, setCancellationError] = useState("");
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -174,25 +240,60 @@ export default function AccountPage() {
     setProfileMessage("Особисті дані успішно збережено.");
   }
 
+  async function handleCancelBooking(booking: Booking) {
+    const confirmed = window.confirm(
+      `Скасувати запис «${booking.service_name}» на ${formatDate(
+        booking.booking_date,
+      )} о ${formatTime(booking.start_time)}?`,
+    );
+
+    if (!confirmed) return;
+
+    setCancellingBookingId(booking.id);
+    setCancellationMessage("");
+    setCancellationError("");
+
+    const { error: rpcError } = await supabase.rpc("cancel_own_booking", {
+      p_booking_id: booking.id,
+    });
+
+    setCancellingBookingId(null);
+
+    if (rpcError) {
+      console.error("Помилка скасування запису:", rpcError);
+      setCancellationError(cancellationErrorMessage(rpcError.message));
+      return;
+    }
+
+    setBookings((currentBookings) =>
+      currentBookings.map((item) =>
+        item.id === booking.id ? { ...item, status: "cancelled" } : item,
+      ),
+    );
+
+    setCancellationMessage("Запис успішно скасовано.");
+  }
+
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Kyiv",
   });
 
-  const upcomingBookings = bookings.filter(
-    (booking) =>
-      booking.booking_date >= today &&
-      booking.status !== "cancelled" &&
-      booking.status !== "completed",
+  const visibleBookings = bookings.filter(
+    (booking) => booking.status !== "cancelled",
   );
 
-  const pastBookings = bookings.filter(
+  const upcomingBookings = visibleBookings.filter(
     (booking) =>
-      booking.booking_date < today ||
-      booking.status === "cancelled" ||
-      booking.status === "completed",
+      booking.booking_date >= today && booking.status !== "completed",
+  );
+
+  const pastBookings = visibleBookings.filter(
+    (booking) => booking.booking_date < today || booking.status === "completed",
   );
 
   function renderBooking(booking: Booking) {
+    const canCancel = isCancellationAllowed(booking);
+
     return (
       <article key={booking.id} className="booking-card">
         <h3>{booking.service_name}</h3>
@@ -218,6 +319,18 @@ export default function AccountPage() {
           <strong>Статус:</strong>{" "}
           {statusLabels[booking.status] ?? booking.status}
         </p>
+
+        {canCancel && (
+          <button
+            type="button"
+            onClick={() => void handleCancelBooking(booking)}
+            disabled={cancellingBookingId !== null}
+          >
+            {cancellingBookingId === booking.id
+              ? "Скасовуємо..."
+              : "Скасувати запис"}
+          </button>
+        )}
       </article>
     );
   }
@@ -267,7 +380,6 @@ export default function AccountPage() {
             </div>
 
             {profileError && <p role="alert">{profileError}</p>}
-
             {profileMessage && <p role="status">{profileMessage}</p>}
 
             <button type="submit" disabled={isSavingProfile}>
@@ -284,8 +396,11 @@ export default function AccountPage() {
       <section>
         <h2>Мої записи</h2>
 
-        {isLoading && <p>Завантажуємо записи...</p>}
+        {cancellationMessage && <p role="status">{cancellationMessage}</p>}
 
+        {cancellationError && <p role="alert">{cancellationError}</p>}
+
+        {isLoading && <p>Завантажуємо записи...</p>}
         {!isLoading && error && <p role="alert">{error}</p>}
 
         {!isLoading && !error && bookings.length === 0 && (
