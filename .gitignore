@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Supabase local temporary files
+supabase/.temp/
+
+# Local Supabase CLI configuration
+supabase/functions/telegram-notify/.npmrc
+
+# Local backup files
+supabase/functions/telegram-notify/*.bak
