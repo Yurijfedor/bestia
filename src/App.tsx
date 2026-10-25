@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import AccountPage from "./pages/account/AccountPage";
+import AdminPage from "./pages/admin/AdminPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -19,6 +20,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AccountPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminPage />
               </ProtectedRoute>
             }
           />

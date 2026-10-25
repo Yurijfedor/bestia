@@ -1,10 +1,14 @@
 import { createContext } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 
+export type UserRole = "admin" | "client";
+
 export interface AuthContextValue {
   user: User | null;
   session: Session | null;
+  role: UserRole | null;
   isLoading: boolean;
+  isProfileLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
