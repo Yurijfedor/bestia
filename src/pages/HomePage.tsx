@@ -135,7 +135,17 @@ function HomePage() {
             ) : (
               <div className="services-grid">
                 {services.slice(0, 4).map((service) => (
-                  <ServiceCard key={service.id} service={service} />
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    onBook={(service) => {
+                      setSelectedService(service);
+                      document.getElementById("booking")?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                    }}
+                  />
                 ))}
               </div>
             )}
@@ -151,7 +161,16 @@ function HomePage() {
           isLoading={isLoadingServices}
           error={servicesError}
           selectedService={selectedService}
-          onSelectService={setSelectedService}
+          onSelectService={(service) => {
+            setSelectedService(service);
+
+            if (service) {
+              document.getElementById("booking")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }
+          }}
         />
 
         <section id="portfolio" className="section section-muted">
