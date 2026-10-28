@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { supabase } from "../lib/supabase";
 
+import PortfolioSection from "../components/portfolio/PortfolioSection";
+
 import type { Service } from "../types/service";
 import { fetchServices } from "../lib/servicesApi";
 import { workingHours } from "../data/workingHours";
@@ -26,6 +28,8 @@ function HomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [servicesError, setServicesError] = useState<string | null>(null);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { user } = useAuth();
 
@@ -74,27 +78,78 @@ function HomePage() {
     <div className="app">
       <header className="site-header">
         <div className="container">
-          <a href="/" className="logo">
-            Бестія
+          <a
+            href="/"
+            className="header-brand"
+            aria-label="Бестія — на головну"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <span className="logo">
+              Бестія<span>.</span>
+            </span>
+            <span className="header-tagline">HAIR STUDIO · ШАРГОРОД</span>
           </a>
 
-          <nav className="main-nav">
-            <a href="#services">Послуги</a>
-            <a href="#portfolio">Роботи</a>
-            <a href="#booking">Запис</a>
-            <a href="#contacts">Контакти</a>
+          <button
+            type="button"
+            className="header-menu-toggle"
+            aria-label={isMenuOpen ? "Закрити меню" : "Відкрити меню"}
+            aria-expanded={isMenuOpen}
+            aria-controls="main-navigation"
+            onClick={() => setIsMenuOpen((open) => !open)}
+          >
+            {isMenuOpen ? "×" : "☰"}
+          </button>
 
-            {user ? (
+          <nav
+            id="main-navigation"
+            className={`main-nav${isMenuOpen ? " is-open" : ""}`}
+            aria-label="Головна навігація"
+          >
+            <a href="#services" onClick={() => setIsMenuOpen(false)}>
+              Послуги
+            </a>
+
+            <a href="#portfolio" onClick={() => setIsMenuOpen(false)}>
+              Роботи
+            </a>
+
+            <a href="#contacts" onClick={() => setIsMenuOpen(false)}>
+              Контакти
+            </a>
+
+            {user && (
               <>
-                <Link to="/account">Мій кабінет</Link>
-                <span>{user.email}</span>
-                <button type="button" onClick={handleLogout}>
+                <Link to="/account" onClick={() => setIsMenuOpen(false)}>
+                  Мій кабінет
+                </Link>
+                <span className="header-account">{user.email}</span>
+                <button
+                  type="button"
+                  className="header-logout"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    void handleLogout();
+                  }}
+                >
                   Вийти
                 </button>
               </>
-            ) : (
-              <Link to="/login">Увійти</Link>
             )}
+
+            {!user && (
+              <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                Увійти
+              </Link>
+            )}
+
+            <a
+              href="#booking"
+              className="header-cta"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Записатися ↗
+            </a>
           </nav>
         </div>
       </header>
@@ -173,17 +228,7 @@ function HomePage() {
           }}
         />
 
-        <section id="portfolio" className="section section-muted">
-          <div className="container">
-            <p className="eyebrow">Портфоліо</p>
-
-            <h2>Мої роботи</h2>
-
-            <div className="portfolio-placeholder">
-              Тут з&apos;являться фотографії робіт
-            </div>
-          </div>
-        </section>
+        <PortfolioSection />
 
         <section id="booking" className="section">
           <BookingForm selectedService={selectedService} />
