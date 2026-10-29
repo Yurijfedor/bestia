@@ -9,7 +9,6 @@ import PortfolioSection from "../components/portfolio/PortfolioSection";
 import type { Service } from "../types/service";
 import { fetchServices } from "../lib/servicesApi";
 import { workingHours } from "../data/workingHours";
-import ServiceCard from "../components/services/ServiceCard";
 import ServicesSection from "../components/services/ServicesSection";
 import BookingForm from "../components/booking/BookingForm";
 
@@ -171,42 +170,6 @@ function HomePage() {
 
             <a href="#booking" className="button">
               Записатися онлайн
-            </a>
-          </div>
-        </section>
-
-        <section id="services" className="section">
-          <div className="container">
-            <p className="eyebrow">Послуги</p>
-
-            <h2>Те, що підкреслює твою красу</h2>
-
-            {isLoadingServices ? (
-              <p>Завантажуємо послуги...</p>
-            ) : servicesError ? (
-              <p role="alert">{servicesError}</p>
-            ) : services.length === 0 ? (
-              <p>Наразі послуги недоступні.</p>
-            ) : (
-              <div className="services-grid">
-                {services.slice(0, 4).map((service) => (
-                  <ServiceCard
-                    key={service.id}
-                    service={service}
-                    onBook={(service) => {
-                      setSelectedService(service);
-                      document.getElementById("booking")?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                      });
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-
-            <a href="#all-services" className="button services-more">
-              Усі послуги
             </a>
           </div>
         </section>
