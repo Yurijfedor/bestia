@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
+import "../../css/auth.css";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,44 +39,73 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="container">
-      <h1>Вхід до облікового запису</h1>
-      <p>Увійди, щоб переглядати свої записи до майстрині.</p>
+    <main className="auth-page">
+      <section className="auth-visual" aria-label="Студія Бестія">
+        <div className="auth-visual-content">
+          <p className="eyebrow">Твій стиль. Твоя краса.</p>
+          <h2>Краса починається з турботи про себе.</h2>
+          <p>
+            Знайди свій образ і плануй наступний візит до майстрині у зручний
+            для тебе час.
+          </p>
+        </div>
+      </section>
 
-      <form onSubmit={handleLogin}>
-        <label>
-          Електронна пошта
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
+      <section className="auth-panel">
+        <div className="auth-content">
+          <Link to="/" className="auth-brand">
+            Бестія<span>.</span>
+          </Link>
 
-        <label>
-          Пароль
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </label>
+          <p className="eyebrow">Раді бачити тебе знову</p>
+          <h1>З поверненням!</h1>
+          <p className="auth-description">
+            Увійди до свого облікового запису, щоб переглядати записи та
+            планувати наступний візит.
+          </p>
 
-        {error && <p role="alert">{error}</p>}
+          <form className="auth-form" onSubmit={handleLogin}>
+            <label className="auth-field">
+              Електронна пошта
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
+                placeholder="name@example.com"
+                required
+              />
+            </label>
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Входимо..." : "Увійти"}
-        </button>
-      </form>
+            <label className="auth-field">
+              Пароль
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                placeholder="Введи пароль"
+                required
+              />
+            </label>
 
-      <p>
-        Ще не маєш облікового запису?{" "}
-        <Link to="/register">Зареєструватися</Link>
-      </p>
+            {error && (
+              <p className="auth-feedback" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button className="auth-submit" type="submit" disabled={isLoading}>
+              {isLoading ? "Входимо..." : "Увійти до акаунту ↗"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Ще не маєш облікового запису?{" "}
+            <Link to="/register">Зареєструватися</Link>
+          </p>
+        </div>
+      </section>
     </main>
   );
 }
