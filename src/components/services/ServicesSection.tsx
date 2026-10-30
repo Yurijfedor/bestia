@@ -26,7 +26,7 @@ function ServicesSection({
       : services.filter((service) => service.category === selectedCategory);
 
   return (
-    <section className="section" id="all-services">
+    <section className="section" id="services">
       <div className="container">
         <p className="eyebrow">Наші послуги</p>
 

@@ -455,7 +455,9 @@ function BookingForm({ selectedService }: BookingFormProps) {
           )}
         </>
       ) : (
-        <p>Спочатку обери послугу в каталозі.</p>
+        <p className="booking-empty-message">
+          Спочатку обери послугу в <a href="#services">каталозі послуг</a>.
+        </p>
       )}
     </div>
   );

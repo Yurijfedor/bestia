@@ -87,6 +87,32 @@
   cursor: pointer;
 }
 
+.booking-empty-message {
+  margin-top: 28px;
+  color: #716963;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.booking-empty-message a {
+  color: #765542;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.booking-empty-message a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Компенсуємо висоту липкої навігації */
+#services,
+#booking {
+  scroll-margin-top: 100px;
+}
+
 @media (max-width: 600px) {
   .booking-summary {
     padding: 20px;
