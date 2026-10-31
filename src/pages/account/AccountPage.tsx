@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import { supabase } from "../../lib/supabase";
 
+import { serviceImages } from "../../data/serviceImages";
+
 interface Booking {
   id: string;
+  service_id: string;
   service_name: string;
   service_price: number | string;
   service_duration_minutes: number;
@@ -175,7 +178,7 @@ export default function AccountPage() {
       const { data, error: fetchError } = await supabase
         .from("bookings")
         .select(
-          "id, service_name, service_price, service_duration_minutes, booking_date, start_time, end_time, status",
+          "id, service_id, service_name, service_price, service_duration_minutes, booking_date, start_time, end_time, status",
         )
         .eq("user_id", user.id)
         .order("booking_date", { ascending: true })
@@ -295,140 +298,266 @@ export default function AccountPage() {
     const canCancel = isCancellationAllowed(booking);
 
     return (
-      <article key={booking.id} className="booking-card">
-        <h3>{booking.service_name}</h3>
+      <article key={booking.id} className="account-booking-card">
+        <div className="account-booking-card__top">
+          <div className="account-booking-card__service">
+            {serviceImages[
+              booking.service_id as keyof typeof serviceImages
+            ] && (
+              <img
+                className="account-booking-card__image"
+                src={
+                  serviceImages[
+                    booking.service_id as keyof typeof serviceImages
+                  ]
+                }
+                alt={booking.service_name}
+                loading="lazy"
+              />
+            )}
 
-        <p>
-          <strong>Дата:</strong> {formatDate(booking.booking_date)}
-        </p>
+            <div className="account-booking-card__title">
+              <span className="account-booking-card__eyebrow">
+                {booking.status === "completed"
+                  ? "Історія відвідувань"
+                  : "Ваш запис"}
+              </span>
 
-        <p>
-          <strong>Час:</strong> {formatTime(booking.start_time)}–
-          {formatTime(booking.end_time)}
-        </p>
+              <h4>{booking.service_name}</h4>
+            </div>
+          </div>
 
-        <p>
-          <strong>Тривалість:</strong> {booking.service_duration_minutes} хв
-        </p>
+          <span className={`account-status account-status--${booking.status}`}>
+            {statusLabels[booking.status] ?? booking.status}
+          </span>
+        </div>
 
-        <p>
-          <strong>Вартість:</strong> {formatPrice(booking.service_price)}
-        </p>
+        <div className="account-booking-card__details">
+          <div>
+            <span>Дата</span>
+            <strong>{formatDate(booking.booking_date)}</strong>
+          </div>
 
-        <p>
-          <strong>Статус:</strong>{" "}
-          {statusLabels[booking.status] ?? booking.status}
-        </p>
+          <div>
+            <span>Час</span>
+            <strong>
+              {formatTime(booking.start_time)}–{formatTime(booking.end_time)}
+            </strong>
+          </div>
+
+          <div>
+            <span>Тривалість</span>
+            <strong>{booking.service_duration_minutes} хв</strong>
+          </div>
+
+          <div>
+            <span>Вартість</span>
+            <strong>{formatPrice(booking.service_price)}</strong>
+          </div>
+        </div>
 
         {canCancel && (
-          <button
-            type="button"
-            onClick={() => void handleCancelBooking(booking)}
-            disabled={cancellingBookingId !== null}
-          >
-            {cancellingBookingId === booking.id
-              ? "Скасовуємо..."
-              : "Скасувати запис"}
-          </button>
+          <div className="account-booking-card__actions">
+            <button
+              type="button"
+              className="account-cancel-button"
+              onClick={() => void handleCancelBooking(booking)}
+              disabled={cancellingBookingId !== null}
+            >
+              {cancellingBookingId === booking.id
+                ? "Скасовуємо..."
+                : "Скасувати запис"}
+            </button>
+          </div>
         )}
       </article>
     );
   }
 
   return (
-    <main className="container">
-      <h1>Мій кабінет</h1>
+    <main className="account-page">
+      <div className="container">
+        <header className="account-page__header">
+          <p className="eyebrow">Особистий простір</p>
+          <h1>Мій кабінет</h1>
+          <p>
+            Тут ви можете переглянути свої записи та керувати особистими даними.
+          </p>
+        </header>
 
-      <p>Вітаємо в особистому кабінеті!</p>
-
-      <section>
-        <h2>Мої дані</h2>
-
-        <p>
-          <strong>Електронна пошта:</strong> {user?.email}
-        </p>
-
-        {isProfileLoading ? (
-          <p>Завантажуємо особисті дані...</p>
-        ) : (
-          <form onSubmit={handleProfileSubmit}>
-            <div>
-              <label htmlFor="profile-full-name">Ім’я та прізвище</label>
-              <input
-                id="profile-full-name"
-                name="fullName"
-                type="text"
-                autoComplete="name"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                required
-                maxLength={100}
-              />
+        <div className="account-layout">
+          <section className="account-panel account-profile">
+            <div className="account-panel__heading">
+              <span className="account-panel__number">01</span>
+              <div>
+                <h2>Особисті дані</h2>
+                <p>Інформація для зв’язку з вами</p>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="profile-phone">Номер телефону</label>
-              <input
-                id="profile-phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                maxLength={30}
-              />
+            <div className="account-profile__email">
+              <span>Електронна пошта</span>
+              <strong>{user?.email}</strong>
             </div>
 
-            {profileError && <p role="alert">{profileError}</p>}
-            {profileMessage && <p role="status">{profileMessage}</p>}
-
-            <button type="submit" disabled={isSavingProfile}>
-              {isSavingProfile ? "Зберігаємо..." : "Зберегти зміни"}
-            </button>
-          </form>
-        )}
-
-        {!isProfileLoading && profileError && (
-          <p role="alert">{profileError}</p>
-        )}
-      </section>
-
-      <section>
-        <h2>Мої записи</h2>
-
-        {cancellationMessage && <p role="status">{cancellationMessage}</p>}
-
-        {cancellationError && <p role="alert">{cancellationError}</p>}
-
-        {isLoading && <p>Завантажуємо записи...</p>}
-        {!isLoading && error && <p role="alert">{error}</p>}
-
-        {!isLoading && !error && bookings.length === 0 && (
-          <p>У вас поки немає записів.</p>
-        )}
-
-        {!isLoading && !error && bookings.length > 0 && (
-          <>
-            <h3>Майбутні записи</h3>
-
-            {upcomingBookings.length > 0 ? (
-              upcomingBookings.map(renderBooking)
+            {isProfileLoading ? (
+              <p className="account-message">Завантажуємо особисті дані...</p>
             ) : (
-              <p>Майбутніх записів немає.</p>
+              <form className="account-form" onSubmit={handleProfileSubmit}>
+                <div className="account-form__field">
+                  <label htmlFor="profile-full-name">Ім’я та прізвище</label>
+                  <input
+                    id="profile-full-name"
+                    name="fullName"
+                    type="text"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    required
+                    maxLength={100}
+                  />
+                </div>
+
+                <div className="account-form__field">
+                  <label htmlFor="profile-phone">Номер телефону</label>
+                  <input
+                    id="profile-phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    maxLength={30}
+                  />
+                </div>
+
+                {profileError && (
+                  <p
+                    className="account-message account-message--error"
+                    role="alert"
+                  >
+                    {profileError}
+                  </p>
+                )}
+
+                {profileMessage && (
+                  <p
+                    className="account-message account-message--success"
+                    role="status"
+                  >
+                    {profileMessage}
+                  </p>
+                )}
+
+                <button
+                  className="account-save-button"
+                  type="submit"
+                  disabled={isSavingProfile}
+                >
+                  {isSavingProfile ? "Зберігаємо..." : "Зберегти зміни"}
+                </button>
+              </form>
             )}
 
-            <h3>Минулі записи</h3>
-
-            {pastBookings.length > 0 ? (
-              pastBookings.map(renderBooking)
-            ) : (
-              <p>Минулі записи відсутні.</p>
+            {!isProfileLoading && profileError && (
+              <p
+                className="account-message account-message--error"
+                role="alert"
+              >
+                {profileError}
+              </p>
             )}
-          </>
-        )}
-      </section>
+          </section>
 
-      <Link to="/">Повернутися на головну</Link>
+          <section className="account-panel account-bookings">
+            <div className="account-panel__heading">
+              <span className="account-panel__number">02</span>
+              <div>
+                <h2>Мої записи</h2>
+                <p>Ваші майбутні візити та історія</p>
+              </div>
+            </div>
+
+            {cancellationMessage && (
+              <p
+                className="account-message account-message--success"
+                role="status"
+              >
+                {cancellationMessage}
+              </p>
+            )}
+
+            {cancellationError && (
+              <p
+                className="account-message account-message--error"
+                role="alert"
+              >
+                {cancellationError}
+              </p>
+            )}
+
+            {isLoading && (
+              <p className="account-message">Завантажуємо записи...</p>
+            )}
+
+            {!isLoading && error && (
+              <p
+                className="account-message account-message--error"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
+
+            {!isLoading && !error && bookings.length === 0 && (
+              <div className="account-empty">
+                <span className="account-empty__symbol">✳</span>
+                <h3>Поки що тут порожньо</h3>
+                <p>Ваші майбутні записи з’являться тут після бронювання.</p>
+                <Link to="/#booking" className="account-save-button">
+                  Записатися онлайн
+                </Link>
+              </div>
+            )}
+
+            {!isLoading && !error && bookings.length > 0 && (
+              <div className="account-bookings__content">
+                <div className="account-bookings__group">
+                  <h3>Майбутні записи</h3>
+
+                  {upcomingBookings.length > 0 ? (
+                    <div className="account-bookings__list">
+                      {upcomingBookings.map(renderBooking)}
+                    </div>
+                  ) : (
+                    <p className="account-empty__text">
+                      Майбутніх записів немає.
+                    </p>
+                  )}
+                </div>
+
+                <div className="account-bookings__group">
+                  <h3>Минулі відвідування</h3>
+
+                  {pastBookings.length > 0 ? (
+                    <div className="account-bookings__list">
+                      {pastBookings.map(renderBooking)}
+                    </div>
+                  ) : (
+                    <p className="account-empty__text">
+                      Минулі записи відсутні.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
+        <div className="account-page__footer">
+          <Link to="/">← Повернутися на головну</Link>
+        </div>
+      </div>
     </main>
   );
 }
