@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadBookings = useCallback(async () => {
     setIsLoading(true);
@@ -76,13 +77,24 @@ export default function AdminPage() {
     [bookings],
   );
 
-  const filteredBookings = useMemo(
-    () =>
-      filter === "all"
-        ? bookings
-        : bookings.filter((booking) => booking.status === filter),
-    [bookings, filter],
-  );
+  const filteredBookings = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase("uk-UA");
+    const phoneQuery = query.replace(/\D/g, "");
+
+    return bookings.filter((booking) => {
+      const matchesStatus = filter === "all" || booking.status === filter;
+
+      const clientName = booking.client_name.toLocaleLowerCase("uk-UA");
+      const clientPhone = booking.client_phone.replace(/\D/g, "");
+
+      const matchesSearch =
+        !query ||
+        clientName.includes(query) ||
+        (phoneQuery.length > 0 && clientPhone.includes(phoneQuery));
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [bookings, filter, searchQuery]);
 
   async function handleStatusChange(
     booking: AdminBooking,
@@ -189,6 +201,24 @@ export default function AdminPage() {
         )}
 
         <section aria-label="Керування записами">
+          <div className="admin-search">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Пошук за ім’ям або номером телефону..."
+              aria-label="Пошук клієнта за ім’ям або номером телефону"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="Очистити пошук"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <div className="admin-filters">
             {(Object.keys(filterLabels) as BookingFilter[]).map((filterKey) => (
               <button
