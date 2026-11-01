@@ -44,3 +44,13 @@ export async function updateAdminBookingStatus(
     throw new Error(`Не вдалося змінити статус запису: ${error.message}`);
   }
 }
+
+export async function deleteAdminBooking(bookingId: string): Promise<void> {
+  const { error } = await supabase.rpc("admin_delete_booking", {
+    p_booking_id: bookingId,
+  });
+
+  if (error) {
+    throw new Error(`Не вдалося видалити запис: ${error.message}`);
+  }
+}

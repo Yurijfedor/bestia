@@ -364,3 +364,15 @@
     flex-wrap: wrap;
   }
 }
+
+.admin-button--delete {
+  background: transparent;
+  border: 1px solid #d9b8b4;
+  color: #a66a65;
+}
+
+.admin-button--delete:hover {
+  background: #a66a65;
+  border-color: #a66a65;
+  color: #fff;
+}

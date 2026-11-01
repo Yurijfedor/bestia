@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   fetchAdminBookings,
   updateAdminBookingStatus,
+  deleteAdminBooking,
   type AdminBooking,
 } from "../../lib/adminApi";
 import { serviceImages } from "../../data/serviceImages";
@@ -116,6 +117,34 @@ export default function AdminPage() {
         err instanceof Error
           ? err.message
           : "Не вдалося змінити статус запису.",
+      );
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function handleDeleteBooking(booking: AdminBooking) {
+    const confirmed = window.confirm(
+      `Ви дійсно хочете остаточно видалити запис клієнта ${booking.client_name} на послугу "${booking.service_name}"?\n\nЦю дію неможливо скасувати.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setUpdatingId(booking.id);
+    setError("");
+    setSuccess("");
+
+    try {
+      await deleteAdminBooking(booking.id);
+
+      setSuccess("Запис успішно видалено.");
+
+      await loadBookings();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Не вдалося видалити запис.",
       );
     } finally {
       setUpdatingId(null);
@@ -264,6 +293,16 @@ export default function AdminPage() {
                             Скасувати
                           </button>
                         )}
+                        <button
+                          className="admin-button admin-button--delete"
+                          type="button"
+                          disabled={updatingId !== null}
+                          onClick={() => void handleDeleteBooking(booking)}
+                        >
+                          {updatingId === booking.id
+                            ? "Зачекайте..."
+                            : "Видалити"}
+                        </button>
                       </div>
                     </div>
                   </article>
