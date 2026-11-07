@@ -3,7 +3,7 @@
 }
 
 .ai-style-hero {
-  padding: 150px 0 110px;
+  padding: 110px 0;
 }
 
 .ai-style-hero h1 {
@@ -22,21 +22,236 @@
   line-height: 1.7;
 }
 
-.ai-style-page__notice {
+.ai-style-form {
+  max-width: 900px;
+  margin-top: 64px;
+}
+
+.ai-style-form__section {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 36px 0;
+  border-top: 1px solid #ddd5cf;
+}
+
+.ai-style-form__number {
+  font-size: 12px;
+  color: #9a8175;
+  letter-spacing: 0.08em;
+}
+
+.ai-style-form h2 {
+  margin: 0 0 10px;
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.ai-style-form__section > div > p {
+  max-width: 600px;
+  margin: 0 0 24px;
+  line-height: 1.6;
+  color: #665e59;
+}
+
+.ai-style-upload {
   display: flex;
-  gap: 16px;
-  max-width: 680px;
-  margin-top: 50px;
-  padding: 24px 28px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: min(100%, 520px);
+  min-height: 260px;
+  padding: 30px;
+  border: 1px dashed #bfb4ad;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.ai-style-upload:hover {
+  border-color: #1c1a1b;
+  background: #f3eeea;
+}
+
+.ai-style-upload input,
+.ai-style-preview__actions input {
+  display: none;
+}
+
+.ai-style-upload__icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.ai-style-upload small {
+  color: #8a817c;
+}
+
+.ai-style-preview {
+  width: min(100%, 520px);
+}
+
+.ai-style-preview img {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+}
+
+.ai-style-preview__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ai-style-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid #1c1a1b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ai-style-button--primary {
+  background: #1c1a1b;
+  color: #fff;
+}
+
+.ai-style-button--secondary {
+  background: transparent;
+  color: #1c1a1b;
+}
+
+.ai-style-button--text {
+  min-height: auto;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+}
+
+.ai-style-fieldset {
+  margin: 0 0 30px;
+  padding: 0;
+  border: 0;
+}
+
+.ai-style-fieldset legend {
+  margin-bottom: 14px;
+  font-family: Georgia, serif;
+  font-size: 20px;
+}
+
+.ai-style-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ai-style-options label {
+  cursor: pointer;
+}
+
+.ai-style-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-style-options span {
+  display: block;
+  padding: 12px 20px;
+  border: 1px solid #d7cec8;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.ai-style-options input:checked + span {
+  border-color: #1c1a1b;
+  background: #1c1a1b;
+  color: #fff;
+}
+
+.ai-style-notes {
+  display: block;
+  max-width: 600px;
+}
+
+.ai-style-notes > span {
+  display: block;
+  margin-bottom: 12px;
+  font-family: Georgia, serif;
+  font-size: 20px;
+}
+
+.ai-style-notes textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d7cec8;
+  background: transparent;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.ai-style-notes textarea:focus {
+  outline: 1px solid #1c1a1b;
+  outline-offset: 2px;
+}
+
+.ai-style-form__footer {
+  padding: 36px 0;
+  border-top: 1px solid #ddd5cf;
+}
+
+.ai-style-form__footer p {
+  max-width: 520px;
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #756c67;
+}
+
+.ai-style-message {
+  max-width: 700px;
+  margin: 0;
+  padding: 18px 22px;
   border-left: 3px solid #1c1a1b;
   background: #eee8e2;
-}
-
-.ai-style-page__notice span {
-  font-size: 24px;
-}
-
-.ai-style-page__notice p {
-  margin: 0;
   line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .ai-style-hero {
+    padding: 72px 0;
+  }
+
+  .ai-style-page__intro {
+    font-size: 16px;
+  }
+
+  .ai-style-form {
+    margin-top: 44px;
+  }
+
+  .ai-style-form__section {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ai-style-form h2 {
+    font-size: 26px;
+  }
+
+  .ai-style-preview__actions {
+    flex-wrap: wrap;
+  }
 }
