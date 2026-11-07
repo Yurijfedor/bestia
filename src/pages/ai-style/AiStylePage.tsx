@@ -13,6 +13,8 @@ export default function AiStylePage() {
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
@@ -56,7 +58,7 @@ export default function AiStylePage() {
     setMessage("");
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!selectedImage) {
@@ -69,9 +71,41 @@ export default function AiStylePage() {
       return;
     }
 
-    setMessage(
-      "Дякуємо! Ваші побажання збережено. AI-підбір буде підключено на наступному етапі.",
-    );
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/generate-hairstyle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          hairLength,
+          stylePreference,
+          notes,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Не вдалося виконати AI-підбір.");
+      }
+
+      setMessage(data.message ?? "Сервер успішно отримав ваш запит.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Сталася помилка під час надсилання запиту.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -247,8 +281,9 @@ export default function AiStylePage() {
                 <button
                   type="submit"
                   className="ai-style-button ai-style-button--primary"
+                  disabled={isSubmitting}
                 >
-                  Підібрати мій стиль ✦
+                  {isSubmitting ? "Обробляємо..." : "Підібрати мій стиль ✦"}
                 </button>
 
                 <p>

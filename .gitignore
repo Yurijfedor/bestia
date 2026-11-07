@@ -30,3 +30,4 @@ supabase/functions/telegram-notify/.npmrc
 
 # Local backup files
 supabase/functions/telegram-notify/*.bak
+.vercel
