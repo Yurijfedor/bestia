@@ -30,7 +30,7 @@ export default function SiteHeader() {
           onClick={closeMenu}
         >
           <span className="logo">
-            Бестія<span>.</span>
+            BESTIA<span>.</span>
           </span>
           <span className="header-tagline">HAIR STUDIO · ШАРГОРОД</span>
         </Link>
@@ -95,6 +95,10 @@ export default function SiteHeader() {
               Увійти
             </Link>
           )}
+
+          <Link to="/ai-style" onClick={closeMenu}>
+            ✦ AI-підбір стилю
+          </Link>
 
           <a href="/#booking" className="header-cta" onClick={closeMenu}>
             Записатися ↗

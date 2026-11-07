@@ -1,0 +1,42 @@
+.ai-style-page {
+  min-height: 100vh;
+}
+
+.ai-style-hero {
+  padding: 150px 0 110px;
+}
+
+.ai-style-hero h1 {
+  max-width: 760px;
+  margin: 0 0 28px;
+  font-family: Georgia, serif;
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.ai-style-page__intro {
+  max-width: 600px;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.ai-style-page__notice {
+  display: flex;
+  gap: 16px;
+  max-width: 680px;
+  margin-top: 50px;
+  padding: 24px 28px;
+  border-left: 3px solid #1c1a1b;
+  background: #eee8e2;
+}
+
+.ai-style-page__notice span {
+  font-size: 24px;
+}
+
+.ai-style-page__notice p {
+  margin: 0;
+  line-height: 1.6;
+}
