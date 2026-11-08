@@ -56,10 +56,16 @@ export default function AiStylePage() {
     HairstyleRecommendation[]
   >([]);
 
+  const [selectedRecommendation, setSelectedRecommendation] =
+    useState<HairstyleRecommendation | null>(null);
+
   const [finalRecommendation, setFinalRecommendation] = useState("");
   const [photoAnalysis, setPhotoAnalysis] = useState<PhotoAnalysis | null>(
     null,
   );
+
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -102,6 +108,58 @@ export default function AiStylePage() {
     setSelectedImage(null);
     setImagePreview(null);
     setMessage("");
+  }
+
+  async function handleGeneratePreview(
+    recommendation: HairstyleRecommendation,
+  ) {
+    if (!selectedImage) {
+      setMessage("Будь ласка, спочатку завантажте своє фото.");
+      return;
+    }
+
+    setSelectedRecommendation(recommendation);
+    setIsGeneratingImage(true);
+    setGeneratedImage(null);
+    setMessage("");
+
+    try {
+      const imageDataUrl = await fileToDataUrl(selectedImage);
+
+      const response = await fetch("/api/generate-hairstyle-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: imageDataUrl,
+          hairstyle: recommendation,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        image?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Не вдалося згенерувати новий образ.");
+      }
+
+      if (!data.image) {
+        throw new Error("AI не повернув згенероване зображення.");
+      }
+
+      setGeneratedImage(data.image);
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Сталася помилка під час генерації зображення.",
+      );
+    } finally {
+      setIsGeneratingImage(false);
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -348,6 +406,12 @@ export default function AiStylePage() {
                 </p>
               )}
             </form>
+            {isSubmitting && (
+              <div className="ai-style-loader">
+                <div className="ai-style-spinner" />
+                <p>BESTIA AI аналізує ваше фото та підбирає зачіску...</p>
+              </div>
+            )}
             {photoAnalysis && (
               <section className="ai-style-photo-analysis">
                 <p className="ai-style-results__eyebrow">ЩО МИ ВРАХУВАЛИ</p>
@@ -407,6 +471,28 @@ export default function AiStylePage() {
                             {recommendation.styling}
                           </p>
                         </div>
+                        <div className="ai-style__recommendation-actions">
+                          <button
+                            type="button"
+                            className="ai-style-button ai-style-button--primary"
+                          >
+                            Записатися з цим варіантом
+                          </button>
+
+                          <button
+                            type="button"
+                            className="ai-style-button ai-style-button--secondary"
+                            onClick={() =>
+                              handleGeneratePreview(recommendation)
+                            }
+                            disabled={isGeneratingImage}
+                          >
+                            {isGeneratingImage &&
+                            selectedRecommendation?.name === recommendation.name
+                              ? "Створюємо ваш новий образ..."
+                              : "Побачити себе з цією зачіскою ✦"}
+                          </button>
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -421,6 +507,24 @@ export default function AiStylePage() {
                     <p>{finalRecommendation}</p>
                   </div>
                 )}
+              </section>
+            )}
+            {isGeneratingImage && (
+              <div className="ai-style-loader">
+                <div className="ai-style-spinner" />
+                <p>Створюємо ваш новий образ...</p>
+              </div>
+            )}
+            {generatedImage && selectedRecommendation && (
+              <section className="ai-style-generated">
+                <p className="ai-style-results__eyebrow">ВАШ НОВИЙ ОБРАЗ</p>
+
+                <h2>Ви з зачіскою «{selectedRecommendation.name}»</h2>
+
+                <img
+                  src={generatedImage}
+                  alt={`Візуалізація зачіски ${selectedRecommendation.name}`}
+                />
               </section>
             )}
           </div>
