@@ -12,7 +12,13 @@ type HairstyleRecommendation = {
   styling: string;
 };
 
+type PhotoAnalysis = {
+  currentHair: string;
+  observations: string[];
+};
+
 type AiHairstyleResponse = {
+  photoAnalysis: PhotoAnalysis;
   recommendations: HairstyleRecommendation[];
   finalRecommendation: string;
 };
@@ -28,13 +34,21 @@ export default async function handler(
   }
 
   try {
-    const { hairLength, stylePreference, notes } = request.body;
+    const { hairLength, stylePreference, notes, imageDataUrl } = request.body;
 
     if (!hairLength || !stylePreference) {
       return response.status(400).json({
         error: "Необхідно вказати довжину волосся та бажаний стиль.",
       });
     }
+
+    if (!imageDataUrl || typeof imageDataUrl !== "string") {
+      return response.status(400).json({
+        error: "Не вдалося отримати фото користувача.",
+      });
+    }
+
+    console.log("Фото отримано. Розмір даних:", imageDataUrl.length);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
@@ -51,28 +65,59 @@ export default async function handler(
 Поверни виключно валідний JSON у такому форматі:
 
 {
+  "photoAnalysis": {
+    "currentHair": "Короткий опис волосся, яке видно на фотографії",
+    "observations": [
+      "Перша видима особливість волосся",
+      "Друга видима особливість волосся"
+    ]
+  },
   "recommendations": [
     {
       "name": "Назва зачіски",
       "description": "Короткий опис",
-      "whyItFits": "Чому ця зачіска може підійти",
+      "whyItFits": "Чому ця зачіска підходить з урахуванням того, що видно на фотографії",
       "styling": "Як укладати зачіску"
     }
   ],
-  "finalRecommendation": "Коротка головна рекомендація стиліста"
+  "finalRecommendation": "Коротка головна рекомендація стиліста з урахуванням фото"
 }
 
 Запропонуй рівно 3 різні варіанти зачісок.
+Спочатку коротко проаналізуй лише ті особливості волосся та зачіски, які реально видно на фотографії.
+
+У полі "currentHair" дай короткий загальний опис поточного волосся.
+У "observations" вкажи 2–4 конкретні видимі особливості, які ти врахував під час підбору.
+
+У полі "whyItFits" для кожної рекомендації прямо поясни зв'язок між видимими особливостями волосся на фото та запропонованою зачіскою.
+
+Не вигадуй характеристики, яких неможливо визначити за фотографією.
+Аналізуй фотографію користувача лише в межах інформації, яка реально видима на зображенні.
 Не додавай Markdown, пояснення або текст поза JSON.
-          `,
+      `,
         },
         {
           role: "user",
-          content: `
+          content: [
+            {
+              type: "text",
+              text: `
 Бажана довжина волосся: ${hairLength}
 Бажаний стиль: ${stylePreference}
 Додаткові побажання: ${notes || "немає"}
+
+Проаналізуй фотографію користувача разом із його побажаннями.
+Врахуй видиму довжину, текстуру та загальний вигляд волосся.
+Не роби припущень про характеристики людини, яких неможливо надійно визначити з фотографії.
           `,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageDataUrl,
+              },
+            },
+          ],
         },
       ],
       max_tokens: 1000,

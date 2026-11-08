@@ -10,10 +10,36 @@ type HairstyleRecommendation = {
   styling: string;
 };
 
-type AiStyleResponse = {
+type PhotoAnalysis = {
+  currentHair: string;
+  observations: string[];
+};
+
+type AiHairstyleResponse = {
+  photoAnalysis: PhotoAnalysis;
   recommendations: HairstyleRecommendation[];
   finalRecommendation: string;
 };
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Не вдалося прочитати файл зображення."));
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new Error("Не вдалося прочитати файл зображення."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function AiStylePage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -31,6 +57,9 @@ export default function AiStylePage() {
   >([]);
 
   const [finalRecommendation, setFinalRecommendation] = useState("");
+  const [photoAnalysis, setPhotoAnalysis] = useState<PhotoAnalysis | null>(
+    null,
+  );
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -92,6 +121,7 @@ export default function AiStylePage() {
     setMessage("");
 
     try {
+      const imageDataUrl = await fileToDataUrl(selectedImage);
       const response = await fetch("/api/generate-hairstyle", {
         method: "POST",
         headers: {
@@ -101,10 +131,11 @@ export default function AiStylePage() {
           hairLength,
           stylePreference,
           notes,
+          imageDataUrl,
         }),
       });
 
-      const data = (await response.json()) as AiStyleResponse & {
+      const data = (await response.json()) as AiHairstyleResponse & {
         error?: string;
       };
 
@@ -114,6 +145,7 @@ export default function AiStylePage() {
 
       setRecommendations(data.recommendations ?? []);
       setFinalRecommendation(data.finalRecommendation ?? "");
+      setPhotoAnalysis(data.photoAnalysis ?? null);
       setMessage("");
     } catch (error) {
       setMessage(
@@ -316,6 +348,25 @@ export default function AiStylePage() {
                 </p>
               )}
             </form>
+            {photoAnalysis && (
+              <section className="ai-style-photo-analysis">
+                <p className="ai-style-results__eyebrow">ЩО МИ ВРАХУВАЛИ</p>
+
+                <h2>Ваше волосся на фото</h2>
+
+                <p className="ai-style-photo-analysis__summary">
+                  {photoAnalysis.currentHair}
+                </p>
+
+                {photoAnalysis.observations.length > 0 && (
+                  <ul className="ai-style-photo-analysis__list">
+                    {photoAnalysis.observations.map((observation) => (
+                      <li key={observation}>{observation}</li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            )}
             {recommendations.length > 0 && (
               <section className="ai-style__results">
                 <div className="ai-style__results-header">
