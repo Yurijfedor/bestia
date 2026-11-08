@@ -255,3 +255,118 @@
     flex-wrap: wrap;
   }
 }
+
+.ai-style__results {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid #d8d0ca;
+}
+
+.ai-style__results-header {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.ai-style__section-number {
+  font-size: 12px;
+  color: #9b5c4d;
+  letter-spacing: 0.08em;
+  padding-top: 8px;
+}
+
+.ai-style__eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #9b5c4d;
+}
+
+.ai-style__results h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.ai-style__recommendations {
+  display: grid;
+  gap: 20px;
+}
+
+.ai-style__recommendation-card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid #d8d0ca;
+  background: #f7f3f0;
+}
+
+.ai-style__recommendation-number {
+  font-size: 12px;
+  color: #9b5c4d;
+  letter-spacing: 0.08em;
+}
+
+.ai-style__recommendation-card h3 {
+  margin: 0 0 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.ai-style__recommendation-details {
+  display: grid;
+  gap: 16px;
+}
+
+.ai-style__recommendation-details p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.ai-style__recommendation-details strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-style__final-recommendation {
+  margin-top: 32px;
+  padding: 32px;
+  border-left: 3px solid #1d1a19;
+  background: #eee8e3;
+}
+
+.ai-style__final-label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #9b5c4d;
+}
+
+.ai-style__final-recommendation p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .ai-style__results-header {
+    gap: 16px;
+  }
+
+  .ai-style__results h2 {
+    font-size: 26px;
+  }
+
+  .ai-style__recommendation-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 20px;
+  }
+}

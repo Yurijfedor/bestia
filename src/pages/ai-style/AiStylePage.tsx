@@ -3,6 +3,17 @@ import SiteHeader from "../../components/layout/SiteHeader";
 
 type HairLength = "short" | "medium" | "long" | "";
 type StylePreference = "classic" | "modern" | "bold" | "";
+type HairstyleRecommendation = {
+  name: string;
+  description: string;
+  whyItFits: string;
+  styling: string;
+};
+
+type AiStyleResponse = {
+  recommendations: HairstyleRecommendation[];
+  finalRecommendation: string;
+};
 
 export default function AiStylePage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -14,6 +25,12 @@ export default function AiStylePage() {
   const [message, setMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [recommendations, setRecommendations] = useState<
+    HairstyleRecommendation[]
+  >([]);
+
+  const [finalRecommendation, setFinalRecommendation] = useState("");
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -87,8 +104,7 @@ export default function AiStylePage() {
         }),
       });
 
-      const data = (await response.json()) as {
-        message?: string;
+      const data = (await response.json()) as AiStyleResponse & {
         error?: string;
       };
 
@@ -96,7 +112,9 @@ export default function AiStylePage() {
         throw new Error(data.error ?? "Не вдалося виконати AI-підбір.");
       }
 
-      setMessage(data.message ?? "Сервер успішно отримав ваш запит.");
+      setRecommendations(data.recommendations ?? []);
+      setFinalRecommendation(data.finalRecommendation ?? "");
+      setMessage("");
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -298,6 +316,62 @@ export default function AiStylePage() {
                 </p>
               )}
             </form>
+            {recommendations.length > 0 && (
+              <section className="ai-style__results">
+                <div className="ai-style__results-header">
+                  <span className="ai-style__section-number">03</span>
+
+                  <div>
+                    <p className="ai-style__eyebrow">AI-ПІДБІР</p>
+                    <h2>Ваші персональні рекомендації</h2>
+                  </div>
+                </div>
+
+                <div className="ai-style__recommendations">
+                  {recommendations.map((recommendation, index) => (
+                    <article
+                      className="ai-style__recommendation-card"
+                      key={`${recommendation.name}-${index}`}
+                    >
+                      <span className="ai-style__recommendation-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      <div className="ai-style__recommendation-content">
+                        <h3>{recommendation.name}</h3>
+
+                        <div className="ai-style__recommendation-details">
+                          <p>
+                            <strong>Опис</strong>
+                            {recommendation.description}
+                          </p>
+
+                          <p>
+                            <strong>Чому вам підійде</strong>
+                            {recommendation.whyItFits}
+                          </p>
+
+                          <p>
+                            <strong>Укладання</strong>
+                            {recommendation.styling}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                {finalRecommendation && (
+                  <div className="ai-style__final-recommendation">
+                    <span className="ai-style__final-label">
+                      РЕКОМЕНДАЦІЯ ВІД BESTIA AI
+                    </span>
+
+                    <p>{finalRecommendation}</p>
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         </section>
       </main>

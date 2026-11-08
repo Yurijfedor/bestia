@@ -5,6 +5,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+type HairstyleRecommendation = {
+  name: string;
+  description: string;
+  whyItFits: string;
+  styling: string;
+};
+
+type AiHairstyleResponse = {
+  recommendations: HairstyleRecommendation[];
+  finalRecommendation: string;
+};
+
 export default async function handler(
   request: VercelRequest,
   response: VercelResponse,
@@ -26,42 +38,55 @@ export default async function handler(
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
+      response_format: {
+        type: "json_object",
+      },
       messages: [
         {
           role: "system",
-          content:
-            "Ти професійний стиліст-перукар. Допомагаєш підібрати зачіску. Відповідай українською мовою, доброзичливо та конкретно.",
+          content: `
+Ти професійний стиліст-перукар. Допомагаєш підібрати зачіску.
+Відповідай українською мовою.
+
+Поверни виключно валідний JSON у такому форматі:
+
+{
+  "recommendations": [
+    {
+      "name": "Назва зачіски",
+      "description": "Короткий опис",
+      "whyItFits": "Чому ця зачіска може підійти",
+      "styling": "Як укладати зачіску"
+    }
+  ],
+  "finalRecommendation": "Коротка головна рекомендація стиліста"
+}
+
+Запропонуй рівно 3 різні варіанти зачісок.
+Не додавай Markdown, пояснення або текст поза JSON.
+          `,
         },
         {
           role: "user",
           content: `
-Клієнт хоче підібрати нову зачіску.
-
 Бажана довжина волосся: ${hairLength}
 Бажаний стиль: ${stylePreference}
 Додаткові побажання: ${notes || "немає"}
-
-Запропонуй 3 варіанти зачіски. Для кожного коротко поясни:
-- назву або опис зачіски;
-- чому вона може підійти;
-- як її укладати.
-
-Наприкінці дай коротку рекомендацію, який варіант варто спробувати першим.
           `,
         },
       ],
-      max_tokens: 700,
+      max_tokens: 1000,
     });
 
-    const result = completion.choices[0]?.message?.content;
+    const content = completion.choices[0]?.message?.content;
 
-    if (!result) {
+    if (!content) {
       throw new Error("AI не повернув рекомендацію.");
     }
 
-    return response.status(200).json({
-      message: result,
-    });
+    const result = JSON.parse(content) as AiHairstyleResponse;
+
+    return response.status(200).json(result);
   } catch (error) {
     console.error("AI hairstyle generation error:", error);
 
