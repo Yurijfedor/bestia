@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SiteHeader from "../../components/layout/SiteHeader";
+import type { AiHairstyleRecommendation } from "../../types/aiStyle";
 
 type HairLength = "short" | "medium" | "long" | "";
 type StylePreference = "classic" | "modern" | "bold" | "";
-type HairstyleRecommendation = {
-  name: string;
-  description: string;
-  whyItFits: string;
-  styling: string;
-};
+// type HairstyleRecommendation = {
+//   name: string;
+//   description: string;
+//   whyItFits: string;
+//   styling: string;
+// };
 
 type PhotoAnalysis = {
   currentHair: string;
@@ -17,7 +19,7 @@ type PhotoAnalysis = {
 
 type AiHairstyleResponse = {
   photoAnalysis: PhotoAnalysis;
-  recommendations: HairstyleRecommendation[];
+  recommendations: AiHairstyleRecommendation[];
   finalRecommendation: string;
 };
 
@@ -42,6 +44,8 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 export default function AiStylePage() {
+  const navigate = useNavigate();
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -53,11 +57,11 @@ export default function AiStylePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [recommendations, setRecommendations] = useState<
-    HairstyleRecommendation[]
+    AiHairstyleRecommendation[]
   >([]);
 
   const [selectedRecommendation, setSelectedRecommendation] =
-    useState<HairstyleRecommendation | null>(null);
+    useState<AiHairstyleRecommendation | null>(null);
 
   const [finalRecommendation, setFinalRecommendation] = useState("");
   const [photoAnalysis, setPhotoAnalysis] = useState<PhotoAnalysis | null>(
@@ -111,7 +115,7 @@ export default function AiStylePage() {
   }
 
   async function handleGeneratePreview(
-    recommendation: HairstyleRecommendation,
+    recommendation: AiHairstyleRecommendation,
   ) {
     if (!selectedImage) {
       setMessage("Будь ласка, спочатку завантажте своє фото.");
@@ -214,6 +218,16 @@ export default function AiStylePage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleBookWithRecommendation(
+    recommendation: AiHairstyleRecommendation,
+  ) {
+    navigate("/", {
+      state: {
+        aiRecommendation: recommendation,
+      },
+    });
   }
 
   return (
@@ -475,6 +489,9 @@ export default function AiStylePage() {
                           <button
                             type="button"
                             className="ai-style-button ai-style-button--primary"
+                            onClick={() =>
+                              handleBookWithRecommendation(recommendation)
+                            }
                           >
                             Записатися з цим варіантом
                           </button>

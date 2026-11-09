@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import PortfolioSection from "../components/portfolio/PortfolioSection";
-
+import type { AiHairstyleRecommendation } from "../types/aiStyle";
 import type { Service } from "../types/service";
 import { fetchServices } from "../lib/servicesApi";
 import { workingHours } from "../data/workingHours";
@@ -20,6 +21,12 @@ const dayNames = {
 };
 
 function HomePage() {
+  const location = useLocation();
+
+  const aiRecommendation = location.state?.aiRecommendation as
+    | AiHairstyleRecommendation
+    | undefined;
+
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -57,6 +64,17 @@ function HomePage() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (aiRecommendation) {
+      requestAnimationFrame(() => {
+        document.getElementById("booking")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
+  }, [aiRecommendation]);
 
   return (
     <div className="app">
@@ -103,7 +121,10 @@ function HomePage() {
         <PortfolioSection />
 
         <section id="booking" className="section">
-          <BookingForm selectedService={selectedService} />
+          <BookingForm
+            selectedService={selectedService}
+            aiRecommendation={aiRecommendation}
+          />
         </section>
 
         <section id="contacts" className="section section-dark">

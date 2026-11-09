@@ -15,12 +15,14 @@ import {
 import { isWorkingDay } from "../../helpers/calendarHelpers";
 
 import type { Service } from "../../types/service";
+import type { AiHairstyleRecommendation } from "../../types/aiStyle";
 
 interface BookingFormProps {
   selectedService: Service | null;
+  aiRecommendation?: AiHairstyleRecommendation;
 }
 
-function BookingForm({ selectedService }: BookingFormProps) {
+function BookingForm({ selectedService, aiRecommendation }: BookingFormProps) {
   const { user } = useAuth();
 
   const nameEdited = useRef(false);
@@ -279,6 +281,20 @@ function BookingForm({ selectedService }: BookingFormProps) {
       <p className="eyebrow">Онлайн-запис</p>
 
       <h2>Обери зручний час для себе</h2>
+
+      {aiRecommendation && (
+        <div className="booking-form__ai-recommendation">
+          <p className="booking-form__ai-label">✦ ВАШ AI-ПІДІБРАНИЙ ВАРІАНТ</p>
+
+          <h3>{aiRecommendation.name}</h3>
+
+          <p>{aiRecommendation.description}</p>
+
+          <p>
+            <strong>Чому вам підійде:</strong> {aiRecommendation.whyItFits}
+          </p>
+        </div>
+      )}
 
       {selectedService ? (
         <>
